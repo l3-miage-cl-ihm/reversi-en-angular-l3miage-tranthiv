@@ -1,3 +1,4 @@
+[![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-718a45dd9cf7e7f842a935f5ebbe5719a5e09af4491e668f4dbf3b35d5cca122.svg)](https://classroom.github.com/online_ide?assignment_repo_id=13561142&assignment_repo_type=AssignmentRepo)
 # L3M 2023-2024 : TP Reversi (Othello) en Angular / signaux
 
 Vous allez implémenter [le jeu de Reversi (Othello)](https://www.ffothello.org/othello/regles-du-jeu/) en Angular. Vous allez utiliser les signaux pour communiquer entre composants et services.
