@@ -1,1 +1,16 @@
 <h1>Reversi en Angular</h1>
+<pre>{{
+    strBoard()
+}}</pre>
+
+<ul>
+    
+    <p>Joueur courrant: {{joueurCourant()}}</p>
+    <p>Jouer en ligne,colonne (ex: "3, 2")</p>
+    <form (submit)="playAtCoord(strCoord); $event.preventDefault()">
+        <input name="strCoord" [(ngModel)]="strCoord" (ngModelChange)="nextJoueur()" />
+    </form>
+    
+    
+
+</ul>
