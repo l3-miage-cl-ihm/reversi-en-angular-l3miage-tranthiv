@@ -22,5 +22,4 @@ export class ReversiService implements ReversiModelInterface {
     this._sigGameState.set(initialGameState) ;
   }
   
-
 }
