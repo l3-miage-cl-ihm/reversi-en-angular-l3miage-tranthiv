@@ -27,7 +27,6 @@ export interface ReversiModelInterface {                  // Le modèle du jeu R
 }
 
 
-
 // 
 
 /**

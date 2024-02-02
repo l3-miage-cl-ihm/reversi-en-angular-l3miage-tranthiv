@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { ReversiService } from './reversi.service';
 
+
 describe('ReversiService', () => {
   let service: ReversiService;
 
