@@ -50,8 +50,11 @@ export class AppComponent {
 
   }
 
-  playAt(c: TileCoords): void {
-    this.S.play(c);
+  playAt(c: [number,number]): void {
+    const [i, j] = c;
+    if (i>=0 && i<8 && j>=0 && j<8) {
+      this.S.play([i as IntRange<0, 8>, j as IntRange<0, 8>]);
+    }
   }
 
   playAtCoord(coord: string): void {
@@ -72,6 +75,9 @@ export class AppComponent {
           draft[i][j] = true;
         });
      });
+      
+      
+
       
      const scores = (() => {
         let Player1 = 0;

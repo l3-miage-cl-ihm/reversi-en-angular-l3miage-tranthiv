@@ -1,5 +1,29 @@
 <h1>Reversi en Angular</h1>
 
+<table class="reversi" [ngClass]="joueurCourant()">
+    
+    <tr *ngFor="let row of sigGameStateAll().gameState.board; let i=index">
+        <div>{{i}}</div>
+        <td *ngFor="let cell of row; let j=index" class="place ">
+            <div *ngIf="cell == 'Empty'" class="Empty"></div>
+            <div *ngIf="cell == 'Player1'" class="Player1"></div>
+            <div *ngIf="cell == 'Player2'" class="Player2"></div>
+            
+            <div *ngFor="let r of sigGameStateAll().isPlayable; let i1=index">
+                
+                <div *ngFor="let c of r; let j2=index">
+                    <div *ngIf="c && i1 == i && j2 == j" class="playable" (click)="playAt([i,j])"></div>
+                    <div class="Empty">{{j}}</div>
+                    
+                </div>
+            </div>
+        </td>
+        
+    </tr>
+</table>
+
+
+
 <pre>{{
     strBoard()
 }}</pre>
@@ -27,3 +51,4 @@
   
     
 </ul>
+
