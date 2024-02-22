@@ -5,6 +5,12 @@ type Enumerate<N extends number, Acc extends number[] = []> = Acc['length'] exte
 export type IntRange<F extends number, T extends number> = Exclude<Enumerate<T>, Enumerate<F>>
 export type IntMap<T, N extends number> = number extends N ? { readonly [K: number]: T } : { readonly [K in Enumerate<N>]: T }
 
+export function* range<F extends number, T extends number>(from: F, to: T): Generator<IntRange<F,T>, void, unknown> {
+    for(let i = from; i < to; i++) {
+        yield i as IntRange<F,T>;
+    }
+}
+
 const pipo: IntMap<string, number> = { 0: 'a', 1: 'b', 2: 'c' };
 
 /**

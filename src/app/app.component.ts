@@ -1,22 +1,9 @@
 import { ChangeDetectionStrategy, Component, Signal, computed, signal } from '@angular/core';
-import { BoardtoString, TileCoords } from './data/reversi.definitions';
-import { whereCanPlay } from './data/reversi.game';
-import { IntRange } from './data/utils';
-import { ReversiService } from './reversi.service';
+import { Matrix, initMatrix, IntRange, range } from './data/utils';
+import { Board, BoardtoString, GameState, TileCoords, Turn, cToString } from './data/reversi.definitions';
 import { produce } from 'immer';
-import { initMatrix } from './data/utils';
-import { GameState, Turn } from './data/reversi.definitions';
-import { Matrix } from './data/utils';
-
-export interface GameStateAll {
-  readonly gameState: GameState;
-  readonly listPlayable: readonly TileCoords[];
-  readonly isPlayable: Matrix<boolean, 8, 8>;
-  readonly scores: Readonly<{ Player1: number, Player2: number }>;
-  readonly boardString: string;
-  readonly winner: undefined | "Drawn" | Turn;
-}
-
+import { whereCanPlay } from './data/reversi.game';
+import { ReversiService } from './reversi.service';
 
 @Component({
   selector: 'app-root',
@@ -25,85 +12,73 @@ export interface GameStateAll {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent {
-  // Publie des string qui représente le plateau de jeu
-  readonly strBoard: Signal<string>;  
-  readonly coupsPossibles: Signal<readonly TileCoords[]>;
-  //readonly scores: Signal<{ Player1: number, Player2: number }>;
   
-  strCoord: string = '';
-  //une liste contient X: Player1 et O: Player2.
-  readonly jouers = signal(['X:Player1', 'O:Player2']);
-  readonly index = signal(0);
-  readonly nextJoueur = () => this.index.set((this.index() + 1) % 2);
-  readonly joueurCourant = computed(() => this.jouers()[this.index()]);
-  
-  
+  public strInput = "";
 
-   constructor(private S: ReversiService) {
-    this.strBoard = computed(
-      () => BoardtoString( S.sigGameState().board )
-    )
+  constructor(private service: ReversiService) {}
 
-    this.coupsPossibles = computed(
-      () => whereCanPlay( S.sigGameState() )
-    )
+  readonly strBoard = computed( () => BoardtoString(this.service.sigGameState().board) );
+  readonly range8 = () => range(0,8);
 
+  symbol() { return cToString(this.service.sigGameState().turn); }
+  player() { return this.service.sigGameState().turn; }
+  case(i: number, j: number) { return this.gs().gameState.board.at(i)?.at(j) }
+  isPlayable(i: number, j: number) { return this.gs().isPlayable.at(i)?.at(j) }
+
+  isInt8(n: number): n is IntRange<0, 8> { return Number.isInteger(n) && n >= 0 && n < 8; }
+
+  play(i: number, j: number) {
+    const x = this.isInt8(i) ? i : undefined;
+    const y = this.isInt8(j) ? j : undefined;
+    if (x !== undefined && y !== undefined)
+      this.service.play([x, y]);
   }
 
-  playAt(c: [number,number]): void {
-    const [i, j] = c;
-    if (i>=0 && i<8 && j>=0 && j<8) {
-      this.S.play([i as IntRange<0, 8>, j as IntRange<0, 8>]);
-    }
-  }
+  restart() {this.service.restart()}
 
-  playAtCoord(coord: string): void {
-    const [line, column] = coord.split(',').map( c => parseInt(c) as IntRange<0, 8> );
-    if (Number.isInteger(line) && Number.isInteger(column)) {
-      this.S.play([line, column]);
-    }
-  }
-  
-
-  public sigGameStateAll = computed<GameStateAll>(
-    () => {
-    const gameState = this.S.sigGameState();
-     const listPlayable = whereCanPlay(gameState);
+  readonly gs = computed<GameStateAll>(() => {
+    let gameState = this.service.sigGameState();
+    let listPlayable = whereCanPlay(gameState);
+    let matrice8x8deFalse = initMatrix(() => false, 8, 8);
     
-     const isPlayable = produce(initMatrix(() => false, 8, 8), draft => {
-        listPlayable.forEach( ([i, j]) => {
-          draft[i][j] = true;
-        });
-     });
-      
-      
-
-      
-     const scores = (() => {
-        let Player1 = 0;
-        let Player2 = 0;
-        gameState.board.forEach( line => line.forEach( c => {
-          if (c === 'Player1') Player1++;
-          if (c === 'Player2') Player2++;
-        }));
-        return { Player1, Player2 };
-     }
-     )();
-      
-      const boardString = BoardtoString(gameState.board);
-
-      const winner = (() => {
-        if (listPlayable.length === 0) {
-          if (scores.Player1 > scores.Player2) return 'Player1';
-          if (scores.Player1 < scores.Player2) return 'Player2';
-          return 'Drawn';
-        }
-        return undefined;
-      })();
-      return { gameState, listPlayable, isPlayable, scores, boardString, winner };
+    let Player1 = 0;
+    let Player2 = 0;
+    for (let row of gameState.board) {
+      for (let c of row) {
+        if (c === 'Player1') Player1++;
+        else if (c === 'Player2') Player2++;
+      }
     }
-  );
 
-  
-  
+    let winner: undefined | "Drawn" | Turn = undefined;
+    if (listPlayable.length == 0) {
+      if (Player1 == Player2)
+        winner = "Drawn";
+      else if (Player1 > Player2)
+        winner = "Player1";
+      else
+        winner = "Player2";
+    }
+
+    return {
+      gameState,
+      listPlayable,
+      isPlayable: produce(matrice8x8deFalse, mutableMatrice => {
+        for (let coords of listPlayable)
+          mutableMatrice[coords[0]][coords[1]] = true;
+      }),
+      scores: { Player1, Player2 },
+      boardString: this.strBoard(),
+      winner
+    };
+  })
+}
+
+export interface GameStateAll {
+  readonly gameState: GameState;
+  readonly listPlayable: readonly TileCoords[];
+  readonly isPlayable: Matrix<boolean, 8, 8>;
+  readonly scores: Readonly<{ Player1: number, Player2: number }>;
+  readonly boardString: string;
+  readonly winner: undefined | "Drawn" | Turn;
 }
