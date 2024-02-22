@@ -1,5 +1,5 @@
 import { Signal } from '@angular/core';
-import { IntRange, Matrix, Vector, toMatrix, toVector } from './utils';
+import { IntRange, Matrix, Vector } from './utils';
 
 export type Turn  = 'Player1' | 'Player2';                // Turn : Tour de jeu
 export type C     = 'Empty' | Turn;                       // C : Contenu d'une case du plateau
@@ -18,12 +18,16 @@ export interface GameState {                              // Un état de jeu
     readonly turn: Turn;                                  // Le joueur pour qui c'est le tour de jouer
 }
 
+
 export interface ReversiModelInterface {                  // Le modèle du jeu Reversi, au sens MVP/MVC
     readonly sigGameState: Signal<GameState>              // Un signal de l'état courant du jeu
-    play(coord: TileCoords): void;                        // Joueur courant joue en <i, j>
-    restart(): void;                                      // Redémarre une partie à l'état initiale
+    play(coord: TileCoords): void;                       // Joueur courant joue en <i, j>
+    restart(): void;                                  // Redémarre une partie à l'état initiale
+    
 }
 
+
+// 
 
 /**
  * Fonctions dédiées à l'affichage au format texte
@@ -51,3 +55,5 @@ ${b.map( (L, i) => ` ${i} |${L.map( c => ` ${cToString(c)} ` ).join("|")}|` ).jo
 ${bot}
 `;
 }
+
+
